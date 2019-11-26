@@ -563,7 +563,17 @@ def main(path, type):
         return
 
     # Drop unneccassary for the following analysis columns
-    packets = packets.loc[:, ['ws.time', 'ws.iat.us']]
+    packets = packets.loc[:, ['ws.no', 'ws.time', 'ws.iat.us']].reset_index(drop=True)
+
+    # Check whether the first packet has 0 inter-arrival time and remove it 
+    # from the following analysis if so
+    if packets.loc[0, 'ws.iat.us'] == 0:
+        packets = packets.drop(packets.index[0]).reset_index(drop=True)
+
+        # Check that packets dataframe is not empty
+        if packets.empty:
+            print('There is no packets to analyze, the result dataframe is empty.')
+            return
 
     # Set output file for bokeh plots
     output_file(f'{filename}.html', title=f'{title_prefix} - Packet IAT analysis')
