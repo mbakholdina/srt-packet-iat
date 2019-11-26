@@ -557,6 +557,11 @@ def main(path, type):
         title_prefix = 'Probing packets'
         packets = extract_packets.extract_probing_packets(srt_packets)
 
+    # Check that packets dataframe is not empty
+    if packets.empty:
+        print('There is no packets to analyze, the result dataframe is empty.')
+        return
+
     # Drop unneccassary for the following analysis columns
     packets = packets.loc[:, ['ws.time', 'ws.iat.us']]
 
