@@ -26,10 +26,14 @@ Usage: packet_iat.py [OPTIONS] PATH
 Use `--help` to get the full list of script options
 ```
 Options:
-  --type [data|probing]  Packet type to analyze: SRT DATA (all data packets
-                         including probing packets) or SRT DATA probing
-                         packets only.  [default: data]
-  --help                 Show this message and exit.
+  --type [data|probing]         Packet type to analyze: SRT DATA (all data
+                                packets including probing packets) or SRT DATA
+                                probing packets only.  [default: data]
+  --overwrite / --no-overwrite  If exists, overwrite the .csv file produced
+                                out of the .pcapng tcpdump trace one at the
+                                previous iterations of running the script.
+                                [default: False]
+  --help                        Show this message and exit.
 ```
 
 **Note:** The inter-arrival time for the first SRT data packet by default is equal to 0, that's why this packet is excluded from the analysis.

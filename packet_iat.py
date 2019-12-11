@@ -537,16 +537,36 @@ def panel_stats_outliers_removed(data: pd.DataFrame):
             'probing packets) or SRT DATA probing packets only.',
     show_default=True
 )
-def main(path, type):
+@click.option(
+	'--overwrite/--no-overwrite',
+	default=False,
+	help=	'If exists, overwrite the .csv file produced out of the .pcapng '
+			'tcpdump trace one at the previous iterations of running the script.',
+	show_default=True
+)
+def main(path, type, overwrite):
     """
-    This script parses tcpdump trace file captured at the receiver side
-    and perform packet inter-arrival times analysis.
+    This script parses .pcapng tcpdump trace file captured at the receiver side,
+    converts it into .csv one, extracts packets of interest and performs 
+    packet inter-arrival times analysis.
     """
     # Process tcpdump trace file and get SRT data packets only
     # (either all data packets or probing packets only)
     pcapng_filepath = pathlib.Path(path)	
-    csv_filepath = convert.convert_to_csv(pcapng_filepath)
-    srt_packets = extract_packets.extract_srt_packets(csv_filepath)
+    csv_filepath = convert.convert_to_csv(pcapng_filepath, overwrite)
+
+    try:
+        srt_packets = extract_packets.extract_srt_packets(csv_filepath)
+    except extract_packets.UnexpectedColumnsNumber as error:
+        print(
+            f'Exception captured: {error} '
+            'Please try running the script with --overwrite option.'
+        )
+        return
+
+    if srt_packets.empty:
+        print('There is no packets to analyze, the result dataframe is empty.')
+        return
 
     if type == 'data':
         filename = 'all_packets_iat'
@@ -557,7 +577,6 @@ def main(path, type):
         title_prefix = 'Probing packets'
         packets = extract_packets.extract_probing_packets(srt_packets)
 
-    # Check that packets dataframe is not empty
     if packets.empty:
         print('There is no packets to analyze, the result dataframe is empty.')
         return
